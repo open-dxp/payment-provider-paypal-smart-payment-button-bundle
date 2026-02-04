@@ -1,20 +1,21 @@
 <?php
 
 /**
- * Pimcore
+ * OpenDXP
  *
- * This source file is available under two different licenses:
- * - GNU General Public License version 3 (GPLv3)
- * - Pimcore Commercial License (PCL)
+ * This source file is licensed under the GNU General Public License version 3 (GPLv3).
+ *
  * Full copyright and license information is available in
  * LICENSE.md which is distributed with this source code.
  *
- *  @copyright  Copyright (c) Pimcore GmbH (http://www.pimcore.org)
- *  @license    http://www.pimcore.org/license     GPLv3 and PCL
+ * @copyright  Copyright (c) Pimcore GmbH (https://pimcore.com)
+ * @copyright  Modification Copyright (c) OpenDXP (https://www.opendxp.io)
+ * @license    https://www.gnu.org/licenses/gpl-3.0.html  GNU General Public License version 3 (GPLv3)
  */
 
 namespace OpenDxp\Bundle\EcommerceFrameworkBundle\PaymentManager\Payment;
 
+use Exception;
 use GuzzleHttp;
 use GuzzleHttp\Utils;
 use OpenDxp\Bundle\EcommerceFrameworkBundle\EnvironmentInterface;
@@ -28,6 +29,7 @@ use OpenDxp\Bundle\EcommerceFrameworkBundle\PaymentManager\V7\Payment\StartPayme
 use OpenDxp\Bundle\EcommerceFrameworkBundle\PaymentManager\V7\Payment\StartPaymentResponse\JsonResponse;
 use OpenDxp\Bundle\EcommerceFrameworkBundle\PaymentManager\V7\Payment\StartPaymentResponse\StartPaymentResponseInterface;
 use OpenDxp\Bundle\EcommerceFrameworkBundle\PriceSystem\PriceInterface;
+use stdClass;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterface
@@ -112,7 +114,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         $config = array_intersect_key($config, $required);
 
         if (count($required) != count($config)) {
-            throw new \Exception(sprintf('required fields are missing! required: %s', implode(', ', array_keys(array_diff_key($required, $config)))));
+            throw new Exception(sprintf('required fields are missing! required: %s', implode(', ', array_keys(array_diff_key($required, $config)))));
         }
 
         $body = $this->buildRequestBody($price, $config);
@@ -159,7 +161,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     {
         $result = $this->createOrder($price, $config->asArray());
 
-        if ($result instanceof \stdClass) {
+        if ($result instanceof stdClass) {
             if ($json = json_encode($result)) {
                 return new JsonResponse($orderAgent->getOrder(), $json);
             }
@@ -170,7 +172,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
             return new JsonResponse($orderAgent->getOrder(), $result);
         }
 
-        throw new \Exception('The created order is neither stdClass nor JSON');
+        throw new Exception('The created order is neither stdClass nor JSON');
     }
 
     /**
@@ -197,7 +199,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         // check fields
         $response = array_intersect_key($response, $required);
         if (count($required) != count($response)) {
-            throw new \Exception(sprintf(
+            throw new Exception(sprintf(
                 'required fields are missing! required: %s',
                 implode(', ', array_keys(array_diff_key($required, $response)))
             ));
@@ -240,7 +242,6 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
 
     /**
      * Returns the authorized data from payment provider
-     *
      */
     public function getAuthorizedData(): array
     {
@@ -249,7 +250,6 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
 
     /**
      * Set authorized data from payment provider
-     *
      */
     public function setAuthorizedData(array $authorizedData): void
     {
@@ -258,13 +258,11 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
 
     /**
      * Executes payment
-     *
-     *
      */
     public function executeDebit(?PriceInterface $price = null, ?string $reference = null): StatusInterface
     {
         if (null !== $price) {
-            throw new \Exception('Setting other price than defined in Order not supported by paypal api');
+            throw new Exception('Setting other price than defined in Order not supported by paypal api');
         }
 
         $orderId = $this->getAuthorizedData()['orderID'];
@@ -286,12 +284,10 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
 
     /**
      * Executes credit
-     *
-     *
      */
     public function executeCredit(PriceInterface $price, string $reference, string $transactionId): StatusInterface
     {
-        throw new \Exception('not implemented');
+        throw new Exception('not implemented');
     }
 
     protected function configureOptions(OptionsResolver $resolver): OptionsResolver
@@ -359,8 +355,7 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
     }
 
     /**
-     *
-     * @throws \Exception
+     * @throws Exception
      */
     protected function getAccessToken(string $clientSecret, string $mode = 'sandbox'): string
     {
@@ -383,14 +378,13 @@ class PayPalSmartPaymentButton extends AbstractPayment implements PaymentInterfa
         $response = Utils::jsonDecode($response->getBody()->getContents(), true);
 
         if (!isset($response['access_token'])) {
-            throw new \Exception($response['error_description'] . ' check PayPal configuration');
+            throw new Exception($response['error_description'] . ' check PayPal configuration');
         }
 
         return $response['access_token'];
     }
 
     /**
-     *
      * @return string
      */
     public function buildPaymentSDKLink(Currency $currency = null)
