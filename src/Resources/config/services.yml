@@ -1,0 +1,14 @@
+services:
+    _defaults:
+        public: false
+        autowire: true
+        autoconfigure: true
+
+    OpenDxp\Bundle\EcommerceFrameworkBundle\PaymentManager\Payment\PayPalSmartPaymentButton:
+        arguments:
+            $options: []
+        tags:
+            - { name: opendxp_ecommerce.payment.provider, key: 'paypal' }
+
+    OpenDxp\Bundle\EcommerceFrameworkBundle\PayPalSmartPaymentButton\Installer:
+        public: true
