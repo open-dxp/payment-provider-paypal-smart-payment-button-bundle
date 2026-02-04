@@ -4,7 +4,10 @@
   "type": "opendxp-bundle",
   "description": "OpenDXP Payment Provider - Paypal Smart Payment Button",
   "config": {
-    "sort-packages": true
+    "sort-packages": true,
+    "allow-plugins": {
+      "symfony/runtime": true
+    }
   },
   "prefer-stable": true,
   "minimum-stability": "dev",
