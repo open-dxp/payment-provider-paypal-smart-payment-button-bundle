@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+    name: payment-provider-paypal-smart-payment-button-bundle
+    description: PayPal Smart Payment Button payment integration for OpenDXP
+        Ecommerce Framework
+spec:
+    type: library
+    lifecycle: production
+    owner: team-opendxp
+    system: opendxp
